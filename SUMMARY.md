@@ -9,20 +9,20 @@
 * [DATABASE](database/README.md)
   * [DB 트랜잭션 격리수준](database/db.md)
 
-## Books
+## Book, Lecture
 
-* [실용주의 프로그래머](books/undefined/README.md)
-  * [2장. 실용주의 접근법](books/undefined/2-..md)
-  * [3장. 기본도구](books/undefined/3-..md)
-* [데이터 중심 어플리케이션 설계](books/undefined-1/README.md)
-  * [3장. 저장소와 검색](books/undefined-1/3-..md)
-  * [4장. 부호화와 발전](books/undefined-1/4-..md)
-  * [5장. 복제](books/undefined-1/5-..md)
-  * [6장. 파티셔닝](books/undefined-1/6-..md)
-  * [7장. 트랜잭션](books/undefined-1/7-..md)
-  * [9장. 일관성과 합의](books/undefined-1/9-..md)
-
-## Group 1
-
-* [클린코더스 정리](group-1/undefined/README.md)
-  * [Function](group-1/undefined/function.md)
+* [실용주의 프로그래머](book-lecture/undefined/README.md)
+  * [2장. 실용주의 접근법](book-lecture/undefined/2-..md)
+  * [3장. 기본도구](book-lecture/undefined/3-..md)
+  * [4장. 실용주의 편집증](book-lecture/undefined/4-..md)
+  * [5장. 구부러지거나 부러지거나](book-lecture/undefined/5-..md)
+  * [6장. 동시성](book-lecture/undefined/6-..md)
+* [데이터 중심 어플리케이션 설계](book-lecture/undefined-1/README.md)
+  * [3장. 저장소와 검색](book-lecture/undefined-1/3-..md)
+  * [4장. 부호화와 발전](book-lecture/undefined-1/4-..md)
+  * [5장. 복제](book-lecture/undefined-1/5-..md)
+  * [6장. 파티셔닝](book-lecture/undefined-1/6-..md)
+  * [7장. 트랜잭션](book-lecture/undefined-1/7-..md)
+  * [9장. 일관성과 합의](book-lecture/undefined-1/9-..md)
+* [클린코더스 정리](book-lecture/undefined-2/README.md)
+  * [Function](book-lecture/undefined-2/function.md)
