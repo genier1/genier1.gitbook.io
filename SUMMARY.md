@@ -1,6 +1,7 @@
 # Table of contents
 
 * [SPRING](README.md)
+  * [스프링, Response에서 Json까지](spring/response-json.md)
   * [MultipleBagFetchException in Hibernate](spring/multiplebagfetchexception-in-hibernate.md)
   * [Spring AOP, CGLIB, JDK Proxy](spring/spring-aop-cglib-jdk-proxy.md)
   * [JPA 더티체킹과 @dynamicupdate](spring/jpa-dynamicupdate.md)
@@ -17,6 +18,9 @@
   * [4장. 실용주의 편집증](book-lecture/undefined/4-..md)
   * [5장. 구부러지거나 부러지거나](book-lecture/undefined/5-..md)
   * [6장. 동시성](book-lecture/undefined/6-..md)
+  * [7장. 코딩하는 동안](book-lecture/undefined/7-..md)
+  * [8장. 프로젝트 전에](book-lecture/undefined/8-..md)
+  * [9장. 실용주의 프로젝트](book-lecture/undefined/9-..md)
 * [데이터 중심 어플리케이션 설계](book-lecture/undefined-1/README.md)
   * [3장. 저장소와 검색](book-lecture/undefined-1/3-..md)
   * [4장. 부호화와 발전](book-lecture/undefined-1/4-..md)
