@@ -153,7 +153,9 @@ REPEATABLE READ는 MySQL의 InnoDB 스토리지 엔진에서 기본적으로 사
 
 그러나 Repetable Read 격리 수준에서는 Phantom Read라는 현상이 발생할 수 있다. 단, Mysql InnoDB에서는 Phantom Read가 발생하지 않는데, 해당 이슈는 바로 아래에서 설명한다.
 
-Phantom Read란 Select for update와 같이 쓰기 잠금을 거는 경우 다른 트랜잭션에서 수행한 변경 작업에 의해 레코드가 보였다가 안 보였다가 하는 현상을 말한다. InnoDB에서는 격리수준이 Repetable Read이더라도 \*\*MVCC(Multi Version Concurrency Control)\*\*를 이용해 트랜잭션 내에서 첫 조회시 만들어진 SNAPSHOT을 기반으로 같은 조회 결과를 반환한다. 따라서 Phantom Read가 발생하지 않는다.
+Phantom Read란 Select for update와 같이 쓰기 잠금을 거는 경우 다른 트랜잭션에서 수행한 변경 작업에 의해 레코드가 보였다가 안 보였다가 하는 현상을 말한다. 즉, 다른 트랜잭션에서 레코드를 추가하거나 삭제할 경우 현재 트랜잭션이 영향을 받는다.
+
+InnoDB에서는 격리수준이 Repetable Read이더라도 \*\*MVCC(Multi Version Concurrency Control)\*\*를 이용해 트랜잭션 내에서 첫 조회시 만들어진 SNAPSHOT을 기반으로 같은 조회 결과를 반환한다. 따라서 Phantom Read가 발생하지 않는다.
 
 ```sql
 # 테스트를 위한 데이터 삽입
@@ -213,8 +215,16 @@ mysql> select * from tb_product where id = 1 for update;
 
 Phantom Read가 발생했다면 농구공의 price가 30000으로 조회되어야 했지만, InnoDB의 MVCC 덕분에 Phantom Read가 발생하지 않은 것을 확인할 수 있다.
 
+그러나 InnoDB에서도 SELECT FOR UPDATE 또는 SELECT … LOCK IN SHARE MODE로 조회하면 Phantom Read가 발생한다.
+
+기존에는 언두로그에서 기록을 읽어오기 때문에 다른 트랜잭션의 영향을 받지 않았으나, SELECT FOR UPDATE 시에는 해당 레코드에 쓰기 잠금을 해야한다. 따라서, 언두 영역의 변경 전 데이터를 가져오는게 아니라 현재 레코드 값을 가져오므로 Phantom Read 현상이 발생한다.
+
 #### Serializable
 
 Serializable는 위에서 언급했던 Dirty Read, Repetable Read, Phantom Read가 모두 발생하지 않는다. 그러나 Serializable은 읽기 시에도 테이블 락을 걸어버린다는 치명적인 단점이 있다.
 
 따라서 실무에서는 왠만해서는 Serializable을 격리수준으로 사용하지 않는다.
+
+#### 참고링크
+
+* [Real MySQL](https://www.yes24.com/Product/Goods/6960931)

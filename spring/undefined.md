@@ -145,9 +145,23 @@ public class Stack<E> {
 
 아무리 잘 사용하더라도 클래스 상속은 여러 문제를 내포하고 있으므로, 가능하다면 extends를 통한 클래스 상속보다는 interface 상속을 고려해보자.
 
+
+
+#### 책 - 실용주의 프로그래머
+
+실용주의 프로그래머에서는 상속이 답인 경우는 드물다고 하며 아래의 세가지 방법을 제안한다.
+
+* 인터페이스
+  * 다형성은 상속이 아닌 인터페이스로 표현하는 것이 좋다.
+* 위임
+  * Has-A가 Is-A보다 낫다.
+* 믹스인
+  * 믹스인을 통해 상황에 맞는 전문화 된 클래스/인터페이스를 만드는 것이 더 낫다.
+
 #### 참고링크
 
 * [https://hoons-dev.tistory.com/106](https://hoons-dev.tistory.com/106)
 * [https://incheol-jung.gitbook.io/docs/q-and-a/architecture/undefined-2](https://incheol-jung.gitbook.io/docs/q-and-a/architecture/undefined-2)
 * [https://jake-seo-dev.tistory.com/404](https://jake-seo-dev.tistory.com/404)
 * [https://colabear754.tistory.com/125](https://colabear754.tistory.com/125)
+* [실용주의 프로그래머](https://www.yes24.com/Product/Goods/107077663)
