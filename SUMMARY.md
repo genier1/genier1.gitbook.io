@@ -10,6 +10,8 @@
 * [DATABASE](database/README.md)
   * [DB 트랜잭션 격리수준](database/db.md)
   * [MYSQL Index 정리](database/mysql-index.md)
+* [Kafka](kafka/README.md)
+  * [Consumer Group 정리](kafka/consumer-group.md)
 
 ## Book, Lecture
 
