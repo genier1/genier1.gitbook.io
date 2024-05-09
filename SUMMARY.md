@@ -1,6 +1,7 @@
 # Table of contents
 
 * [JAVA, SPRING](README.md)
+  * [Spring boot 3 구동과정](java-spring/spring-boot-3.md)
   * [스프링, Response에서 Json까지](java-spring/response-json.md)
   * [MultipleBagFetchException in Hibernate](java-spring/multiplebagfetchexception-in-hibernate.md)
   * [Spring AOP, CGLIB, JDK Proxy](java-spring/spring-aop-cglib-jdk-proxy.md)
@@ -17,6 +18,7 @@
 
 ## Book, Lecture
 
+* [\[NHN FORWARD 2019\] Spring JPA의 사실과 오해](book-lecture/nhn-forward-2019-spring-jpa.md)
 * [실용주의 프로그래머](book-lecture/undefined/README.md)
   * [2장. 실용주의 접근법](book-lecture/undefined/2-..md)
   * [3장. 기본도구](book-lecture/undefined/3-..md)
