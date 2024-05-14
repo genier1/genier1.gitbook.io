@@ -11,6 +11,7 @@
   * [ZGC 정리](java-spring/zgc.md)
   * [서블릿, 서블릿컨테이너, WAS 정리](java-spring/was.md)
 * [DATABASE](database/README.md)
+  * [Mysql Lock 정리](database/mysql-lock.md)
   * [DB 트랜잭션 격리수준](database/db.md)
   * [MYSQL Index 정리](database/mysql-index.md)
 * [Kafka](kafka/README.md)
@@ -19,6 +20,7 @@
 ## Book, Lecture
 
 * [\[NHN FORWARD 2019\] Spring JPA의 사실과 오해](book-lecture/nhn-forward-2019-spring-jpa.md)
+* [피그마는 어떻게 Database를 100배 확장할 수 있었는가(번역)](book-lecture/database-100.md)
 * [실용주의 프로그래머](book-lecture/undefined/README.md)
   * [2장. 실용주의 접근법](book-lecture/undefined/2-..md)
   * [3장. 기본도구](book-lecture/undefined/3-..md)
