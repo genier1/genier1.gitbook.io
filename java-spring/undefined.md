@@ -1,167 +1,86 @@
-# 클래스 상속시 주의해야 할 점
+# 톰캣 스레드풀
 
-### TL:DR
+Spring Boot 3.2 기준
 
-1. IS-A 관계가 아니라면 상속하지 말것
-2. 클래스 상속 시 발생할 수 있는 문제를 고려할 것
-   1. 결합도 증가
-   2. 캡슐화 위반
-   3. 클래스 폭발 및 중복 코드 양산
-   4. 슈퍼클래스의 메소드 상속으로 인한 문제 발생
-3. 클래스 상속보다는 인터페이스 상속이나 합성을 고려할 것
-
-### 상속 시 주의사항
-
-#### 결합도 상승
-
-상위 클래스가 변경되면, 해당 클래스를 상속받은 클래스들까지 같이 변경되어야 할 수 있다.
-
-아래의 예시를 통해 살펴보자.
+#### 톰캣 기본 설정
 
 ```sql
-public class Vehicle {
-    private String color;
-    private double price;
-
-    public Vehicle(String color, double price) {
-        this.color = color;
-        this.price = price;
-    }
-
-    public double calculatePrice() {
-        return 0.9 * price;
-    }
-}
-
-public class Car extends Vehicle {
-    private double tax;
-
-    public Car(String color, double price, double tax) {
-        super(color, price);
-        this.tax = tax;
-    }
-
-    @Override
-    public double calculatePrice() {
-        double price = super.calculatePrice();
-        return price + tax;
-    }
-}
+server:
+  port: 8080
+  servlet:
+    context-path: /
+  tomcat:
+    threads:
+      max: 200
+    max-connections: 8192
+    accept-count: 100
+    http1:
+      enabled: true
+    accesslog:
+      enabled: false
+    ssl:
+      enabled: false
 ```
 
-Car 클래스는 Vehicle 클래스를 상속받고 있다.
+* `server.tomcat.threads.max`
+  * 톰캣의 최대 스레드 수, 기본값은 200
+* `server.tomcat.max-connections`
+  * 톰캣의 톰캣의 최대 연결 수, 기본값은 8192
+* `server.tomcat.http1.enabled`
+  * HTTP1.1 커넥터의 활성화 여부를 설정. 기본값은 true다.
+* `server.tomcat.accept-count`
+  * TCP 백로그 큐의 최대 크기를 설정. 기본값은 100
+  * 이 값을 초과하는 연결 요청이 들어오면, 클라이언트는 연결 거부 오류를 받는다.
+* `server.tomcat.accesslog.enabled`: 액세스 로그의 활성화 여부를 설정한다. 기본값은 false
+* `server.tomcat.ssl.enabled`: SSL 설정의 활성화 여부를 설정한다. 기본값은 false
 
-Vehicle에 필드가 추가되어 생성자가 변경될 경우, Car 클래스의 생성자도 변경되어야 한다.
+#### max connection과 max thread간의 관계
 
-또한 Vehicle 클래스의 calculatePrice가 price에 0.9가 아닌 0.8이 곱해지는 것으로 변경된다면 Car 클래스의 calculatePrice 결과가 달라져버린다.
+BIO(Blocking I/O)를 사용했을 때는, max-connctions가 max threads보다 많더라도 실제로는 max-thread 개수 만큼의 연결만 맺어진다.([톰캣 공식문서](https://tomcat.apache.org/tomcat-7.0-doc/config/http.html)) connection이 thread 개수가 많이 들어오는 경우 연결 대기상태가 되기 때문이다.
 
-Vehicle 클래스를 상속받은 클래스가 수십개라면(오토바이, 자전거, 버스 등등), Vehicle 클래스의 사소한 변경도 수십개 클래스에 모두 영향을 미치는 결과를 초래한다.
+BIO에서 Executor를 사용하는 경우에는 기본값은 Executor의 maxThreads가 실제 max-connctions수가 된다. Executor는 기본적으로 스레드 풀을 사용하여 처리하기 때문이다.
 
-#### 캡슐화 위반 가능성
+반면, NIO(New I/O)를 사용할 때는 max threads보다 max-connctions가 많을 경우 max thread 개수를 초과하는 연결도 모두 받아들인다. NIO Connector에서는 BIO와 달리, 연결이 발생할 때 바로 새로운 Thread를 할당하지 않고(Connection : Thread ≠ 1:1) Poller라는 개념의 Thread에게 Connection(Channel)을 넘겨준다. Poller는 Socket들을 캐시로 들고 있다가 해당 Socket에서 data에 대한 처리가 가능한 순간에만 thread를 할당하기 때문에 thread 개수보다 많은 Connection을 관리할 수 있다.
 
-캡슐화란 객체의 속성과 행위를 외부에서 접근할 수 없도록 하는 것이다. 이를 통해 실제 구현 내용의 일부를 감추는 효과를 얻게 된다.
+{% embed url="https://github.com/genier1/genier1.gitbook.io/assets/19471818/74efc852-f8fa-4662-b72a-fb58f685f92c" %}
 
-그렇다면 상속이 왜 캡슐화를 위반할 수 있는것일까?
+#### 적정 스레드 풀 개수는 어느정도가 좋을까?
 
-하위 클래스는 상위 클래스에서 제공하는 구현을 알고있어야 하기 때문이다. Car 클래스의 calculatePrice는 Vehicle의 calculatePrice 함수를 통해 가격을 받아온 후, 세금을 더하는 방식으로 동작한다. 즉, 상위 클래스인 Vehicle 클래스의 calculatePrice가 어떤 역할을 하는지 알고 있어야만 하위 클래스인 Car의 calculatePrice 구현을 완성할 수 있다.
+어플리케이션마다 적정 스레드 풀 개수는 다를수 밖에 없다. 따라서 성능테스트를 통해 적정 스레드 풀 개수를 정하는 것이 가장 좋다.
 
-#### 구조적인 결함 발생
+일반적인 방식으로는 아래의 두가지 방식을 참고할 수 있다.
 
-자바의 Stack 클래스는 상속의 단점을 잘 보여주는 경우다.
+#### Little’s law
 
-```java
-Stack<String> stack = new Stack<>();
-stack.push("salad");
-stack.push("poke");
-stack.push("steak");
+`L = λ * W`
 
-stack.add(0, "chicken");
+* L - 동시에 처리되는 요청 수
+* λ – long-term average arrival rate (RPS)
+* W – the average time to handle the request (latency) λ - 장기 평균 도착률 (RPS, Requests Per Second) W - 요청 처리 평균 시간 (지연 시간)
 
-// 실패, 실제로는 steak를 반환
-assertEquals("chicken", stack.pop()); 
-```
+예를 들어, 초당 1000개의 요청을 받는 애플리케이션이 있고, 각 요청을 처리하는데 평균 0.5초가 소요된다고 해보자.
 
-Stack은 LIFO 구조이므로 stack에서 pop을 했을때 “4th”가 나올 것으로 예상하겠지만 실제로는 그렇지 않다.
+Little’s law에 따르면 RPS = 1000, Latency = 0.5이므로 적절한 스레드풀 개수는 500개이다.
 
-Vector를 상속받으면서 vector의 `add(int index, E element)` 메소드도 함께 상속받다보니, Stack 클래스에서도 특정 index에 element 삽입이 가능해져 버렸다.
+#### Brian Goetz
 
-상속을 받을 때 슈퍼클래스의 메서드를 모두 함께 상속받는 과정에서 이런 구조적인 결함이 발생할 수 있다. 해당 이유 뿐 아니라 여러가지 이유로 인해 Java에서는 Stack 대신 Deque 사용을 권장한다.
+자바 병렬 프로그래밍의 저자 Brian Goetz는 다음과 같은 공식을 제안했다.
 
-#### 클래스 폭발 및 가독성 저하
+`Number of threads = Number of Available Cores * (1 + Wait time / Service time)`
 
-A → B → C 형태와 같이 클래스 상속이 두 단계만 되더라도 C 클래스가 어떤 필드와 메서드로 합성되어 있는지 알아보려면 A, B 클래스를 살펴보아야 하는 문제가 생긴다. A, B 클래스를 상속받은 클래스가 수십개라면 코드 자체를 이해하는 것이 매우 어려워 진다.
+* **Waiting time** - I/O 작업이 완료될 때까지 기다리는 시간
+  * I/O 작업 뿐 아니라 모니터 락을 얻기 위해 기다리는 시간이나 스레드가 WAITING/TIMED\_WAITING 상태일 때의 시간도 포함될 수 있다.
+* **Service time** - 실제로 작업을 수행하는 데 소요되는 시간
+  * 예를 들어, HTTP 응답을 처리하거나, 마샬링/언마샬링하거나, 기타 변환 작업 등을 수행하는 시간
 
-개인적으로는 두 단계 이상의 클래스 상속은 되도록 피하려고 한다.
+예를 들어, 4코어 CPU에서 실행되는 애플리케이션이 있다고 하자. 그리고 각 요청은 평균 0.5초 동안 외부 서비스로부터 HTTP 응답을 기다린다고 하자. 그리고 받은 HTTP 응답을 처리하고, 마샬링/언마샬링하며, 기타 변환 작업을 수행하는 데 평균 0.3초 정도 소요된다고 했다고 하자.
 
-### 그렇다면 어떻게 해야 할까
-
-#### IS-A 관계일 경우에 상속을 사용하자.
-
-많은 글에서 Is-A 관계일 때 상속을 사용하고, Has-A 관계일 때 Compisition(합성)을 사용하라고 권장한다.
-
-Is-A 관계의 예시이다.
-
-* 사람은 동물이다.
-
-위와 같이 Is-A 관계일 경우에는 상속을 사용하는것을 권장한다. 단, 위에서 언급한 문제가 발생할 수 있는 점은 조심하자.
-
-Has-A 관계의 예시이다.
-
-* 자동차는 엔진을 가지고 있다.
-
-위와 같이 Has-A 관계일 경우에는 상속보다는 합성을 사용하는 것이 좋다.
-
-#### 합성(Composition) 사용
-
-Stack 클래스에서 상속으로 발생한 문제를 해결하는 방법으로는 합성이 있다.
-
-```java
-public class Stack<E> {
-    private final Vector<E> vector = new Vector<>();
- 
-    public E push(E item) {
-        vector.add(item);
-        return item;
-    }
- 
-    public E pop() {
-        return vector.remove(vector.size() - 1);
-    }
- 
-    public E peek() {
-        return vector.get(vector.size() - 1);
-    }
- 
-    public boolean empty() {
-        return vector.isEmpty();
-    }
- 
-}
-```
-
-위와 같이 합성을 사용하게 되면 Vector 클래스의 메서드가 외부로 노출되지 않아 이전에 발생했던 문제가 해결된다.
-
-#### 인터페이스 상속
-
-아무리 잘 사용하더라도 클래스 상속은 여러 문제를 내포하고 있으므로, 가능하다면 extends를 통한 클래스 상속보다는 interface 상속을 고려해보자.
-
-
-
-#### 책 - 실용주의 프로그래머
-
-실용주의 프로그래머에서는 상속이 답인 경우는 드물다고 하며 아래의 세가지 방법을 제안한다.
-
-* 인터페이스
-  * 다형성은 상속이 아닌 인터페이스로 표현하는 것이 좋다.
-* 위임
-  * Has-A가 Is-A보다 낫다.
-* 믹스인
-  * 믹스인을 통해 상황에 맞는 전문화 된 클래스/인터페이스를 만드는 것이 더 낫다.
+Core 개수 = 4, Wait time = 0.5, Service time = 0.3이므로 적절한 스레드 개수는 11개 이다. (4 \* (1 + 0.5 / 0.3))
 
 #### 참고링크
 
-* [https://hoons-dev.tistory.com/106](https://hoons-dev.tistory.com/106)
-* [https://incheol-jung.gitbook.io/docs/q-and-a/architecture/undefined-2](https://incheol-jung.gitbook.io/docs/q-and-a/architecture/undefined-2)
-* [https://jake-seo-dev.tistory.com/404](https://jake-seo-dev.tistory.com/404)
-* [https://colabear754.tistory.com/125](https://colabear754.tistory.com/125)
-* [실용주의 프로그래머](https://www.yes24.com/Product/Goods/107077663)
+* [https://sihyung92.oopy.io/spring/1](https://sihyung92.oopy.io/spring/1)
+* [https://junuuu.tistory.com/799](https://junuuu.tistory.com/799)
+* [https://thelogiclooms.medium.com/how-to-get-ideal-thread-pool-size-9b2c0bb74906](https://thelogiclooms.medium.com/how-to-get-ideal-thread-pool-size-9b2c0bb74906)
+* [https://engineering.zalando.com/posts/2019/04/how-to-set-an-ideal-thread-pool-size.html](https://engineering.zalando.com/posts/2019/04/how-to-set-an-ideal-thread-pool-size.html)
+* [https://wisdom-and-record.tistory.com/140](https://wisdom-and-record.tistory.com/140)

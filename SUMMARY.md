@@ -1,13 +1,15 @@
 # Table of contents
 
 * [JAVA, SPRING](README.md)
+  * [톰캣 스레드풀](java-spring/undefined.md)
   * [Spring boot 3 구동과정](java-spring/spring-boot-3.md)
   * [스프링, Response에서 Json까지](java-spring/response-json.md)
+  * [서킷브레이커](java-spring/undefined-1.md)
   * [MultipleBagFetchException in Hibernate](java-spring/multiplebagfetchexception-in-hibernate.md)
   * [Spring AOP, CGLIB, JDK Proxy](java-spring/spring-aop-cglib-jdk-proxy.md)
   * [JPA 더티체킹과 @dynamicupdate](java-spring/jpa-dynamicupdate.md)
   * [Reddison으로 분산락 구현하기](java-spring/reddison.md)
-  * [클래스 상속시 주의해야 할 점](java-spring/undefined.md)
+  * [클래스 상속시 주의해야 할 점](java-spring/undefined-2.md)
   * [ZGC 정리](java-spring/zgc.md)
   * [서블릿, 서블릿컨테이너, WAS 정리](java-spring/was.md)
 * [DATABASE](database/README.md)
